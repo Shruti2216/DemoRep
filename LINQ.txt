@@ -1,0 +1,112 @@
+LINQ using Entity Framework Hands on:
+
+1. Display Bookname and its length for all books in books table
+
+     var context = new DBContext();
+            var query = from c in context.Books
+                        select c;
+            foreach (var book in query)
+            {
+                Console.WriteLine(book.BookName);
+
+            }
+
+2. Display Membername whose names length is above 5 characters using members table
+
+    var context = new DBContext();
+            var obj = from c in context.Members
+                      where c.MemberName.Length > 5
+                      select c;
+            foreach (var member in obj)
+            {
+                Console.WriteLine(member.MemberName);
+
+            }
+3. Insert a record in Members table
+
+    var context = new DBContext();
+            Member objMember = new Member();
+            
+            objMember.MemberName = "Shruti";
+            objMember.age = 30;
+            context.Members.Add(objMember);
+            Console.WriteLine("Data Save Successfully");
+            context.SaveChanges();
+4. Remove a record from Members table where member age is above 58
+
+    var context = new DBContext();
+            Member objmember = context.Members.Single(c => c.age > 58);
+            context.Members.Remove(objmember);
+            context.SaveChanges();
+            Console.WriteLine("Remove record from members where age is above 58");
+
+5. update price of all books by 10% 
+
+    var context = new DBContext();
+            var query = from c in context.Books
+                        where c.BookId == 1
+                        select c;
+            foreach (var c in query)
+            {
+                c.price = (c.price*0.10);
+                Console.WriteLine(c);
+
+            }
+6. List all records from Transaction table
+
+    var context = new DBContext();
+            var query = from c in context.Transactions
+                        select c;
+            foreach (var t in query)
+            {
+                Console.WriteLine(t);
+
+            }
+
+7. Display names of books which has been purchased in quantity above 25
+
+     var context = new DBContext();
+            var query = from c in context.Books
+                         where c.qty > 25
+                        select c;
+            foreach (var book in query)
+            {
+                Console.WriteLine(book.BookName);
+
+            }
+
+8. Skip last 2 records from table and display all other records
+
+     var context = new DBContext();
+            var query = context.Books.OrderByDescending(t => t.BookId);
+            var skip2 = query.Take(query.Count() - 2);
+            foreach (var s in skip2 )
+            {
+                Console.WriteLine(s.BookName);
+            }
+
+9. Group members by age and display their details 
+
+     var context = new DBContext();
+            List<string> MemberList;
+            var obj = from c in context.Members
+                      group c by c.age into g
+                      select new { age = g.Key,
+                                   MemberList =g.Select(m => m.MemberName).ToList()
+                      };
+            foreach (var member in obj)
+            {
+                Console.WriteLine(member.age);
+                foreach(var c in member.MemberList)
+                {
+                    Console.WriteLine(c);
+                }
+            }
+10. create a stored rpocedure which will display all records from books table and call the stored procedure using entity framework and display the details(this query can be answered by only people who has Visual studio in their system)
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>
+            .MapToStoreProcedures(s => s.Select(u => u.HasName("SelectBook", "dbo")));
+            base.OnModelCreating(modelBuilder);
+        }
